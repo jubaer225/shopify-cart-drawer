@@ -1,0 +1,157 @@
+<section class="main-collection">
+  <h1 class="main-collection-title">{{ collection.title }}</h1>
+
+  <div class="collection-product-list">
+    {% for product in collection.products %}
+      <article class="product-card">
+        <h3>{{ product.title }}</h3>
+
+        {% render 'atc-button'
+          , product: product %}
+
+        <button class="quick-view" data-product-handle="{{ product.handle }}">
+          Quick View
+        </button>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal" id="quick-view-modal">
+  <div class="modal-overlay"></div>
+
+  <div class="modal-content">
+    <button class="close-button">&times;</button>
+
+    <div class="quick-view-content">
+      <img
+        id="qv-image"
+        width="300"
+        height="300"
+        src=""
+        alt="" />
+      <h2 id="qv-title"></h2>
+      <p id="qv-price"></p>
+      <div id="qv-description"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #qv-image {
+    width: 300px;
+    height: auto;
+  }
+  .collection-product-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .product-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: center;
+  }
+
+  .quick-view {
+    margin-top: 10px;
+  }
+
+  /* MODAL */
+  .modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+
+  .modal.is-open {
+    display: flex;
+  }
+
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    position: relative;
+    background: #fff;
+    padding: 20px;
+    max-width: 450px;
+    width: 90%;
+    z-index: 1;
+  }
+
+  .modal-content img {
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('quick-view-modal');
+    const overlay = modal.querySelector('.modal-overlay');
+    const closeBtn = modal.querySelector('.close-button');
+  
+    const titleEl = document.getElementById('qv-title');
+    const priceEl = document.getElementById('qv-price');
+    const descEl = document.getElementById('qv-description');
+    const imageEl = document.getElementById('qv-image');
+  
+    document.querySelectorAll('.quick-view').forEach(button => {
+      button.addEventListener('click', async () => {
+        const handle = button.dataset.productHandle;
+  
+        modal.classList.add('is-open');
+  
+        // reset
+        titleEl.textContent = 'Loading...';
+        priceEl.textContent = '';
+        descEl.innerHTML = '';
+        imageEl.src = '';
+  
+        try {
+          const response = await fetch(`/products/${handle}.js`);
+          const product = await response.json();
+  
+          titleEl.textContent = product.title;
+          priceEl.textContent = `$${(product.price / 100).toFixed(2)}`;
+          descEl.innerHTML = product.description;
+  
+          if (product.images.length) {
+            imageEl.src = product.images[0];
+            imageEl.alt = product.title;
+          }
+  
+        } catch (error) {
+          titleEl.textContent = 'Failed to load product';
+        }
+      });
+    });
+  
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('is-open');
+    });
+  
+    overlay.addEventListener('click', () => {
+      modal.classList.remove('is-open');
+    });
+  });
+</script>

@@ -1,0 +1,26 @@
+<cart-drawer data-open-trigger="cart-icon" class="cart-drawer-container">
+  <div class="cart-drawer">
+    <div class="cart-drawer__content">
+      <div class="cart-drawer__header">
+        <h2>Your Cart</h2>
+        <button class="cart-drawer__close" aria-label="Close Cart Drawer">&times;</button>
+      </div>
+
+      <div class="cart-drawer__inner">
+        {% if cart.items.size > 0 %}
+          <div class="cart-drawer__items">
+            {% for item in cart.items %}
+              <div class="cart-drawer__item">
+                <div class="cart-drawer__item-info-wraper">
+                  <div class="cart-drawer__item-image">
+                    {{ item.image }}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</cart-drawer>
